@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from . import med_domain
-from preempt import sanitizer
+from rootguard import sanitizer
 
 from collections import defaultdict
 import random

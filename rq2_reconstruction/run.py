@@ -47,7 +47,7 @@ from utils.utils import get_topological_order
 from utils.med_domain.all_templates import (
     template_nodes, template_edges, template_expressions,
 )
-from preempt.sanitizer import Sanitizer, TEMPLATE_DOMAINS, MEDICAL_DOMAINS
+from rootguard.sanitizer import Sanitizer, TEMPLATE_DOMAINS, MEDICAL_DOMAINS
 from baselines.bounded_laplace_baseline import bounded_laplace_noise
 from baselines.staircase_baseline import staircase_noise
 

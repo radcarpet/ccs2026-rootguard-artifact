@@ -17,7 +17,7 @@ import random
 import numpy as np
 from diffprivlib.mechanisms import Staircase
 
-from preempt.sanitizer import MEDICAL_DOMAINS
+from rootguard.sanitizer import MEDICAL_DOMAINS
 from utils.utils import get_topological_order
 
 
@@ -207,7 +207,7 @@ def sanitize_staircase_roots_opt(samples, nodes, edges, expressions, epsilon,
     """
     from utils.utils import (optimal_budget_allocation_staircase,
                              compute_population_mean_sensitivities)
-    from preempt import sanitizer
+    from rootguard import sanitizer
 
     epsilon_blocks = []
     all_values = []
@@ -325,7 +325,7 @@ def sanitize_staircase_roots_opt_weighted(
     """
     from utils.utils import (optimal_budget_allocation_staircase_weighted,
                              compute_population_mean_sensitivities)
-    from preempt import sanitizer
+    from rootguard import sanitizer
 
     epsilon_blocks = []
     all_values = []

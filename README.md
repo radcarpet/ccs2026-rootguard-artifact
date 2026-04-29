@@ -1,4 +1,4 @@
-# PREEMPT++: Reproducibility artifact
+# RootGuard: Reproducibility artifact
 
 Companion code, derived artifacts, and per-RQ reproduction folders for the
 paper. Per-RQ READMEs link each folder back to the relevant section in the
@@ -7,7 +7,7 @@ paper.
 ## Layout
 
 ```
-preempt-artifact/
+rootguard-artifact/
 ├── README.md                     this file
 ├── INSTALL.md                    setup instructions
 ├── .env.example                  template for environment variables (RQ4 only)
@@ -15,9 +15,9 @@ preempt-artifact/
 ├── data/                         NHANES benchmark + population stats (input data)
 │   ├── nhanes_benchmark_200.json
 │   └── holdout_population_means.json
-├── preempt/                      core PREEMPT++ algorithm
+├── rootguard/                      core RootGuard algorithm
 ├── utils/                        shared utilities (sensitivity, allocation, topo order)
-├── baselines/                    baseline DP-text mechanisms (CAPE, SBYW-DPMLM, CluSanT, …)
+├── baselines/                    Bounded-Laplace and Staircase mechanism implementations (used in RQ1, RQ2)
 ├── rq1_target_utility/           RQ1 (paper §5.1)
 ├── rq2_reconstruction/           RQ2 (paper §5.2)
 ├── rq3_structural_analysis/      RQ3 (paper §5.3)
@@ -65,13 +65,3 @@ cat rq4_agent_eval/SUMMARY.md
 
 See [`INSTALL.md`](INSTALL.md) for full install instructions.
 
-## Citing
-
-```bibtex
-@inproceedings{preempt-plus-plus,
-  title  = {…},
-  author = {…},
-  year   = {…},
-  booktitle = {…}
-}
-```

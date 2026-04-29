@@ -21,7 +21,7 @@ from generate_rq2_allocation_plot import (
     plot_power_law_single,
 )
 import generate_rq2_allocation_plot as base
-from preempt.sanitizer import set_template_domains
+from rootguard.sanitizer import set_template_domains
 
 
 def compute_allocations_2kplus1(eps, tmpl_info):

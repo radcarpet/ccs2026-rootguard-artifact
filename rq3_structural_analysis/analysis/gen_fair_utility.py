@@ -262,7 +262,7 @@ def load_budget_info():
     """
     with open(os.path.join("results_rq2_implied", "s_dom_info.json")) as f:
         sdom = json.load(f)
-    from preempt.sanitizer import set_template_domains, MEDICAL_DOMAINS
+    from rootguard.sanitizer import set_template_domains, MEDICAL_DOMAINS
 
     TMPL_ROOTS = {
         "ANEMIA": ["hb", "hct", "rbc"], "AIP": ["tc", "hdl", "tg"],

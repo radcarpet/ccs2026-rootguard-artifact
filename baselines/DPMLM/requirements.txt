@@ -1,8 +1,0 @@
-importlib_resources
-nltk
-numpy
-spacy
-torch
-transformers
-wn
-tqdm

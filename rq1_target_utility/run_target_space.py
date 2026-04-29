@@ -56,7 +56,7 @@ from utils.med_domain.all_templates import (
     template_target_keys, CDC_POPULATION_MEANS,
 )
 from utils.utils import get_topological_order
-from preempt.sanitizer import Sanitizer, MEDICAL_DOMAINS, set_template_domains
+from rootguard.sanitizer import Sanitizer, MEDICAL_DOMAINS, set_template_domains
 from plots.plotting import get_risk_class
 
 with open('data/holdout_population_means.json', 'r') as f:
