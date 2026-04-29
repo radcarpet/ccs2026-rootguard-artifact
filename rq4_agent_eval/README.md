@@ -46,7 +46,12 @@ python experiments/run_sweep.py --n-patients 100 --workers 20 --eps-list 0.01,0.
 # 3. Aggregate (with bootstrap SEs).
 python analysis/aggregate.py --n-patients-cap 100
 
-# 4. LaTeX tables and PDF plots.
+# 4. LaTeX tables and PDF plots. gen_tables.py emits ten files into tables/,
+#    including the four Risk Class Error tables cited in §5 of the paper:
+#      rce_eps0.1_body.tex      tab:rce_per_template (body)
+#      rce_eps0.1_appendix.tex  tab:agent_rce_eps0.1_app (appendix)
+#      aggregate_rce.tex        tab:agent_aggregate_rce (aggregate across templates)
+#      rce_eps0.1.tex           tab:agent_rce_eps0.1 (legacy 3 cfg × 3 B layout)
 python analysis/gen_tables.py
 python analysis/gen_plots.py
 python analysis/gen_summary.py
@@ -69,7 +74,10 @@ tables/                                 LaTeX tables ready for paper inclusion
   double_asymmetry_eps{0.01,0.05,0.1}.tex
   per_template_wmape_eps0.1.tex
   aggregate_wmape.tex
-  rce_eps0.1.tex
+  rce_eps0.1_body.tex                   tab:rce_per_template (main text §5)
+  rce_eps0.1_appendix.tex               tab:agent_rce_eps0.1_app (appendix)
+  aggregate_rce.tex                     tab:agent_aggregate_rce (cross-template)
+  rce_eps0.1.tex                        tab:agent_rce_eps0.1 (legacy)
   per_root_mae.tex
   win_rate.tex
 plots/                                  PDF figures, 8-panel grids
