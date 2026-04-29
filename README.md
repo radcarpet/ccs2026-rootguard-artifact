@@ -1,8 +1,8 @@
 # PREEMPT++: Reproducibility artifact
 
 Companion code, derived artifacts, and per-RQ reproduction folders for the
-paper. The paper source is in [`PAPER/`](PAPER/); see `PAPER/main.tex` for
-the full text.
+paper. Per-RQ READMEs link each folder back to the relevant section in the
+paper.
 
 ## Layout
 
@@ -18,7 +18,6 @@ preempt-artifact/
 ├── preempt/                      core PREEMPT++ algorithm
 ├── utils/                        shared utilities (sensitivity, allocation, topo order)
 ├── baselines/                    baseline DP-text mechanisms (CAPE, SBYW-DPMLM, CluSanT, …)
-├── PAPER/                        paper source (LaTeX + figures)
 ├── rq1_target_utility/           RQ1 (paper §5.1)
 ├── rq2_reconstruction/           RQ2 (paper §5.2)
 ├── rq3_structural_analysis/      RQ3 (paper §5.3)
