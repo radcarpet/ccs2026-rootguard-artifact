@@ -91,8 +91,8 @@ NUM_WORKERS = cli_args.workers
 
 ALLOCATIONS_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "allocations_v2")
 OUTPUT_BASE = "./results_rq3_adversarial_v3"
-HOLDOUT_STATS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "holdout_population_means.json")
-BENCHMARK_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "nhanes_benchmark_200.json")
+HOLDOUT_STATS_PATH = "../data/holdout_population_means.json"
+BENCHMARK_PATH = "../data/nhanes_benchmark_200.json"
 
 STAIRCASE_MAX_ROOT_EPS = 0.962  # per-root cap for staircase PMF validity
 

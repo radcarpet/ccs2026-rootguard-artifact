@@ -54,7 +54,7 @@ print("Method: {}".format(METHOD), flush=True)
 
 # ── Load data ────────────────────────────────────────────────────────────
 print("Loading data...", flush=True)
-with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'nhanes_benchmark_200.json'), 'r') as f:
+with open('../data/nhanes_benchmark_200.json', 'r') as f:
     samples = json.load(f)
 
 from utils.med_domain.all_templates import (
@@ -65,7 +65,7 @@ from utils.utils import get_topological_order
 from preempt.sanitizer import Sanitizer, MEDICAL_DOMAINS, set_template_domains
 from utils.risk_class import get_risk_class
 
-with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'holdout_population_means.json'), 'r') as f:
+with open('../data/holdout_population_means.json', 'r') as f:
     _holdout_data = json.load(f)
 HOLDOUT_MEANS = _holdout_data['per_template_means']
 

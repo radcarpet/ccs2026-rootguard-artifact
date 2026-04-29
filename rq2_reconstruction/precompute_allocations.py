@@ -47,8 +47,8 @@ EPSILONS = [0.01, 0.05, 0.1, 0.5, 1.0]
 EPSILON_MIN = 0.001
 NUM_CANDIDATES = 1000
 OUTPUT_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "allocations_v2")
-BENCHMARK_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "nhanes_benchmark_200.json")
-HOLDOUT_STATS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "holdout_population_means.json")
+BENCHMARK_PATH = "../data/nhanes_benchmark_200.json"
+HOLDOUT_STATS_PATH = "../data/holdout_population_means.json"
 
 SKIP_NODES = ["anemia_class", "fib4_risk", "aip_risk", "ci_risk",
               "ppi_risk", "tyg_class", "homa_class", "nlr_class"]
