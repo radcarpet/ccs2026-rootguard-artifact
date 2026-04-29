@@ -1,4 +1,10 @@
 """Shared loaders and formatters for RQ3 v3 generator scripts."""
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import json
 import os
 import sys

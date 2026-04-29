@@ -98,7 +98,7 @@ def compute_wmape(gt_vals, sanitized_list, tmpl):
 # ── Data loading ────────────────────────────────────────────────────────────
 
 def load_ground_truth():
-    with open("data/nhanes_benchmark_200.json") as f:
+    with open("../../data/nhanes_benchmark_200.json") as f:
         raw = json.load(f)
     gt = {}
     for tmpl in TEMPLATES:

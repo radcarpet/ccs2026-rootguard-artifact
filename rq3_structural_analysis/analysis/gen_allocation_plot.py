@@ -4,6 +4,12 @@ Budget allocation plots:
   1. 1×6 bar chart grid (Exp/BLap/Stair at ε=0.1 and ε=1.0)
   2. 1×3 power law plot (log-log scatter of ε_i vs |h_i|·D_i per mechanism)
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 import os
 import json
@@ -127,7 +133,7 @@ def topo_sort(roots, derived):
 
 
 def load_holdout_means():
-    with open("data/holdout_population_means.json") as f:
+    with open("../../data/holdout_population_means.json") as f:
         return json.load(f)["per_template_means"]
 
 

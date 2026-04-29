@@ -26,6 +26,12 @@ Usage:
   python run_rq3_adversarial_v3.py --template ANEMIA  # single template
   python run_rq3_adversarial_v3.py --verify           # quick sanity checks
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 import argparse
 import json
@@ -83,10 +89,10 @@ NUM_SAMPLES = 200
 NUM_CANDIDATES = 1000
 NUM_WORKERS = cli_args.workers
 
-ALLOCATIONS_BASE = "./allocations_v2"
+ALLOCATIONS_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "allocations_v2")
 OUTPUT_BASE = "./results_rq3_adversarial_v3"
-HOLDOUT_STATS_PATH = "./data/holdout_population_means.json"
-BENCHMARK_PATH = "./data/nhanes_benchmark_200.json"
+HOLDOUT_STATS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "holdout_population_means.json")
+BENCHMARK_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "nhanes_benchmark_200.json")
 
 STAIRCASE_MAX_ROOT_EPS = 0.962  # per-root cap for staircase PMF validity
 

@@ -4,6 +4,12 @@ Outputs latex_template_metadata.tex with: template name, medical domain,
 target node, root nodes, k, n, D_target, and per-root |dT/dx_i| at
 CDC population means.
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import sys
 import os
 import numpy as np

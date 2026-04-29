@@ -10,6 +10,12 @@ Outputs:
   - Main-text summary table at a representative epsilon
   - Per-template appendix tables (all epsilon x 3 mechanisms)
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 import json, os, math
 import numpy as np
@@ -154,7 +160,7 @@ def compute_risk_error(gt_vals, sanitized_list, tmpl):
 # ── Load data ────────────────────────────────────────────────────────────────
 
 def load_ground_truth():
-    with open("data/nhanes_benchmark_200.json") as f:
+    with open("../../data/nhanes_benchmark_200.json") as f:
         raw = json.load(f)
     gt = {}
     for tmpl in TEMPLATES:

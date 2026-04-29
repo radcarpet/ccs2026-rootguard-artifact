@@ -11,6 +11,12 @@ Usage:
   python run_rq1_adversarial.py --method blap_roots
   python run_rq1_adversarial.py --method stair_opt
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import json, sys, os, time, argparse, math, random
 import numpy as np
 
@@ -48,7 +54,7 @@ print("Method: {}".format(METHOD), flush=True)
 
 # ── Load data ────────────────────────────────────────────────────────────
 print("Loading data...", flush=True)
-with open('data/nhanes_benchmark_200.json', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'nhanes_benchmark_200.json'), 'r') as f:
     samples = json.load(f)
 
 from utils.med_domain.all_templates import (
@@ -57,9 +63,9 @@ from utils.med_domain.all_templates import (
 )
 from utils.utils import get_topological_order
 from preempt.sanitizer import Sanitizer, MEDICAL_DOMAINS, set_template_domains
-from plots.plotting import get_risk_class
+from utils.risk_class import get_risk_class
 
-with open('data/holdout_population_means.json', 'r') as f:
+with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'holdout_population_means.json'), 'r') as f:
     _holdout_data = json.load(f)
 HOLDOUT_MEANS = _holdout_data['per_template_means']
 

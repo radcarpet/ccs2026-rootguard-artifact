@@ -16,6 +16,12 @@ Usage:
 
 Default output: agent_eval/agent_eval/data/allocations.csv
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import argparse
 import csv
 import json
@@ -47,10 +53,10 @@ NUM_CANDIDATES = 1000
 
 DEFAULT_OUT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    "agent_eval", "agent_eval", "data", "allocations.csv",
+    "data", "allocations.csv",
 )
-BENCHMARK_PATH = "../data/nhanes_benchmark_200.json"
-HOLDOUT_STATS_PATH = "../data/holdout_population_means.json"
+BENCHMARK_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "nhanes_benchmark_200.json")
+HOLDOUT_STATS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "holdout_population_means.json")
 
 SKIP_NODES = ["anemia_class", "fib4_risk", "aip_risk", "ci_risk",
               "ppi_risk", "tyg_class", "homa_class", "nlr_class"]

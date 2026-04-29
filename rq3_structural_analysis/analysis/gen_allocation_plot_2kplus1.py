@@ -7,6 +7,12 @@ Outputs (at eps = 0.1):
   - plots_rq1/rq2_allocation_powerlaw_2kplus1_eps0p1.{pdf,png}  (1x3, all mechs)
   - plots_rq1/rq2_allocation_powerlaw_2kplus1_Exp_eps0p1.{pdf,png}  (single Exp panel)
 """
+# _REPO_ROOT_BOOTSTRAP: ensure repo root is on sys.path so that
+# 'from utils.*' / 'from preempt.*' imports resolve when this script
+# is run from its own subfolder.
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 import os
 
