@@ -43,11 +43,11 @@ paper tables / figures each artifact corresponds to. **`AUDIT.md` (top
 level)** maps every `\label{}` and `\includegraphics{figures/...}` in
 `PAPER/sections/*.tex` to the artifact source that reproduces it.
 
-## Quick smoke check (no rerun)
+## Inspect pre-built outputs
 
-Frozen pre-built tables and plots are committed under each `rq*/tables/`
-and `rq*/plots/`. To inspect what the paper reports without running
-anything:
+Pre-generated tables and figures are committed under each `rq*/tables/`
+and `rq*/plots/` so reviewers can browse the paper-reported numbers
+without rerunning any experiment:
 
 ```bash
 ls rq1_target_utility/tables/ rq1_target_utility/plots/
