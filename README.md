@@ -33,13 +33,15 @@ rerunning. To reproduce from scratch:
 
 | RQ | Section | Command (run from the rq folder) | Wall-clock | Notes |
 |---|---|---|---|---|
-| RQ1 — Target utility | §5.1 | `python run_target_space.py --method exp_all --budget_mode kplus1` (and 26 sibling cells) → `python analysis/gen_double_asymmetry_table.py` → `python analysis/gen_plots.py` | ~10 min | Pure CPU |
-| RQ2 — Reconstruction attacks | §5.2 | `python precompute_allocations.py` → `python run.py` → `python analysis/gen_main_table.py` → `python analysis/gen_main_figure.py` | ~30 min | Pure CPU |
-| RQ3 — Structural analysis | §5.3 | `python analysis/gen_allocation_plot.py` → `python analysis/gen_per_template_plot.py` → `python analysis/gen_template_metadata_table.py` | <5 min | Reads RQ1's allocations |
-| RQ4 — End-to-end LLM agent eval | §5.4 | `python precompute_allocations.py` → `python experiments/run_sweep.py --n-patients 100 --workers 20 --eps-list 0.01,0.05,0.1` → `python analysis/aggregate.py` → `python analysis/gen_tables.py` → `python analysis/gen_plots.py` | ~3 hours | Requires `OPENAI_API_KEY` (see `.env.example`) |
+| RQ1 — Target utility | §5.1 | `python run_target_space.py ...` (target-space sweep, all 27 cells) → `python run_root_space.py ...` (root-space sweep, paper-canonical, all 27 cells) → `python analysis/gen_rce_tables.py` (root-space wMAPE + RCE for body and appendix) → `python analysis/gen_double_asymmetry_table.py` → `python analysis/gen_appendix_summary.py` → `python analysis/gen_plots.py` | ~10 min | Pure CPU |
+| RQ2 — Reconstruction attacks | §5.2 | `python precompute_allocations.py` → `python run.py` → `python analysis/gen_paper_tables.py` (paper labels: tab:recon_main, tab:rq2_*) → `python analysis/gen_main_figure.py` | ~30 min | Pure CPU |
+| RQ3 — Structural analysis | §5.3 | `python analysis/gen_allocation_plot.py` → `python analysis/gen_per_template_plot.py` → `python analysis/gen_per_template_summary.py` (tab:per_template_summary, body §5) → `python analysis/gen_template_metadata_table.py` | <5 min | Reads RQ1's allocations + root-space results |
+| RQ4 — End-to-end LLM agent eval | §5.4 | `python precompute_allocations.py` → `python experiments/run_sweep.py --n-patients 100 --workers 20 --eps-list 0.01,0.05,0.1` → `python analysis/aggregate.py` → `python analysis/gen_tables.py` (emits four RCE tables incl. tab:rce_per_template, tab:agent_rce_eps0.1_app, tab:agent_aggregate_rce) → `python analysis/gen_plots.py` | ~3 hours | Requires `OPENAI_API_KEY` (see `.env.example`) |
 
 See each RQ's `README.md` for full options, expected outputs, and which
-paper tables / figures each artifact corresponds to.
+paper tables / figures each artifact corresponds to. **`AUDIT.md` (top
+level)** maps every `\label{}` and `\includegraphics{figures/...}` in
+`PAPER/sections/*.tex` to the artifact source that reproduces it.
 
 ## Quick smoke check (no rerun)
 
