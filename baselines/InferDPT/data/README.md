@@ -1,0 +1,1 @@
+Download *cl100_embeddings.json* from the [sharing link](https://drive.google.com/drive/folders/1mshI2yoJyx8LOLpAx7RB31VQkj-lvV1u?usp=sharing). Store them in this folder.

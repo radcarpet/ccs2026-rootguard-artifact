@@ -1,0 +1,71 @@
+% Requires: \usepackage{tikz}
+% \usetikzlibrary{positioning, arrows.meta}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    root/.style={circle, draw=black!60, thick, minimum size=0.8cm, font=\normalsize},
+    noised/.style={circle, draw=blue!70!black, thick, fill=blue!10, minimum size=0.8cm, font=\normalsize},
+    derived/.style={rectangle, rounded corners=3pt, draw=gray!60, fill=gray!8, font=\normalsize, inner sep=5pt},
+    tgt/.style={rectangle, rounded corners=3pt, draw=orange!60, fill=orange!6, font=\normalsize, inner sep=5pt},
+    arr/.style={-{Stealth[length=5pt]}, thick},
+    same/.style={draw=black!30, thick, dashed, rounded corners=2pt},
+]
+
+% === User agent label ===
+\node[font=\small\bfseries, text=black!40, rotate=90, anchor=south] at (-2.2, -0.7) {User agent $\mathcal{U}$};
+
+% === Row 1: Private roots ===
+\node[root] (x1) at (0, 0) {$x_1$};
+\node[root] (x2) at (2.0, 0) {$x_2$};
+\node[root] (x3) at (4.0, 0) {$x_3$};
+\node[font=\small, text=black!50, anchor=east] at (-0.7, 0) {private};
+
+% === Row 2: Noised roots ===
+\node[noised] (xh1) at (0, -1.5) {$\hat{x}_1$};
+\node[noised] (xh2) at (2.0, -1.5) {$\hat{x}_2$};
+\node[noised] (xh3) at (4.0, -1.5) {$\hat{x}_3$};
+\node[font=\small, text=blue!60, anchor=east] at (-0.7, -1.5) {cached};
+
+\draw[arr, blue!60, densely dashed] (x1) -- node[right, font=\scriptsize, text=blue!50] {$\mathcal{M}$} (xh1);
+\draw[arr, blue!60, densely dashed] (x2) -- node[right, font=\scriptsize, text=blue!50] {$\mathcal{M}$} (xh2);
+\draw[arr, blue!60, densely dashed] (x3) -- node[right, font=\scriptsize, text=blue!50] {$\mathcal{M}$} (xh3);
+
+% === Divider ===
+\draw[thick, black!20] (-1.5, -2.4) -- (5.0, -2.4);
+\node[text=black!40, anchor=east] at (-1.6, -2.4) {post-processing};
+
+% === Adversary label ===
+\node[font=\small\bfseries, text=black!40, rotate=90, anchor=south] at (-2.2, -4.0) {Adversary $\mathcal{A}$};
+
+% === Row 3: Adversary queries ===
+\node[derived] (q1) at (-0.4, -3.4) {$\hat{x}_1$};
+\node[derived] (q2) at (1.2, -3.4) {$\hat{x}_1$};
+\node[derived] (q3) at (3.6, -3.4) {$f(\hat{x}_2, \hat{x}_3)$};
+
+\node[font=\scriptsize, text=black!40] at (-0.7, -3.9) {turn 1};
+\node[font=\scriptsize, text=black!40] at (1.2, -3.9) {turn 2};
+\node[font=\scriptsize, text=black!40] at (3.9, -3.9) {turn 3};
+
+% === "Same value" annotation ===
+\draw[same] (-0.9, -3.1) rectangle (1.7, -3.7);
+\node[font=\scriptsize, text=black!45, anchor=east] at (-0.5, -2.90) {same cached value};
+
+% === Row 4: Target ===
+\node[tgt] (qT) at (1.8, -5.0) {$T(\hat{x}_1, \hat{x}_2, \hat{x}_3)$};
+\node[font=\scriptsize, text=black!40] at (0.0, -5.0) {turn 4};
+
+% === Arrows from cached to queries ===
+\draw[arr, black!30] (xh1) -- (q1);
+\draw[arr, black!30] (xh1) -- (q2);
+\draw[arr, black!30] (xh2) -- (q3);
+\draw[arr, black!30] (xh3) -- (q3);
+
+% === Arrows to target ===
+\draw[arr, black!30] (q1.south) -- (qT.north west);
+\draw[arr, black!30] (q3.south) -- (qT.north east);
+
+\end{tikzpicture}
+\caption{Overview of \sysname{}. The user agent sanitizes private roots once and caches them (blue). All adversary queries are answered from the cached roots (gray): repeated requests return the identical value (turns 1--2), derived computations are deterministic (turn 3), and the target incurs no additional privacy cost (turn 4).}
+\label{fig:dag_overview}
+\end{figure}

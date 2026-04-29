@@ -1,0 +1,53 @@
+\section{Background}
+
+\subsection{Preliminaries}
+\label{sec:preliminaries}
+ 
+\begin{definition}[Metric Differential Privacy~\cite{Chatzikokolakis2013BroadeningTS}]
+\label{def:mdp}
+Let $(\mathcal{X}, d_{\mathcal{X}})$ be a metric space. A randomized mechanism $\mathcal{M}: \mathcal{X} \to \mathcal{Z}$ satisfies $\varepsilon$-metric differential privacy ($\varepsilon$-mDP) if for all $x, x' \in \mathcal{X}$ and all measurable $S \subseteq \mathcal{Z}$:
+\[
+    \Pr[\mathcal{M}(x) \in S] \leq e^{\varepsilon \cdot d_{\mathcal{X}}(x, x')} \Pr[\mathcal{M}(x') \in S].
+\]
+\end{definition}
+ 
+\noindent The privacy loss scales with the distance $d_{\mathcal{X}}(x, x')$ between inputs, providing stronger guarantees for nearby values. This generalizes standard $\varepsilon$-DP (which corresponds to the discrete metric $d(x,x') = \mathbf{1}[x \neq x']$) to structured domains where the distance between values is meaningful.
+
+\subsection{Threat Model}
+\label{sec:threat-model}
+
+A user agent $\mathcal{U}$, holding private values $X = (x_1, \ldots, x_k)$, engages a service $\mathcal{A}$ to obtain a useful output --- a diagnostic, recommendation, or classification computed from $X$. The user wants $\mathcal{A}$'s output but does not trust $\mathcal{A}$ with the raw values: $\mathcal{A}$ may log queries, share data with partners, be breached, or be coerced through legal processes~\cite{openai-nyt}. We model $\mathcal{A}$ as an adversary that performs the user's task while concurrently attempting to reconstruct $X$ from whatever values cross the trust boundary. Concretely, $\mathcal{A}$ accepts sanitized inputs from $\mathcal{U}$, computes the target value $T(\hat{X})$ on those inputs (e.g., the FIB-4 liver-fibrosis score), applies its own downstream interpretation (risk thresholds, clinical classification, recommendation logic) that the user does not know, and returns the resulting classification to $\mathcal{U}$. The user agent's job is to control what crosses the trust boundary so that $\mathcal{A}$ can compute its task, but learns no more about $X$ than the post-processing theorem permits.
+
+\paragraph{Adversary goal.} The adversary's goal is to reconstruct the user's true root values $X$ from sanitized releases within $t$ turns. It chooses a set of functions $F$ to maximize its reconstruction advantage, and may use all released values and knowledge of the sanitization pipeline to estimate the roots. In particular, if the user agent independently noises both a root $x_i$ and a derived value $f(x_i)$, the adversary obtains two independent noisy views of $x_i$, which it can combine to reduce uncertainty about the true value (Sec.~\ref{sec:redundancy-noising}). As the adversary must complete the task in $t$ turns, we assume without loss of generality that it gathers reconstruction data for the first $t - 1$ turns and obtains the roots needed to compute the target in the final turn.
+
+\paragraph{Adversary capabilities.} $\mathcal{A}$ controls the interaction over $t$ turns. In each of the first $t - 1$ turns, it can: \textbf{(i)} request a private root value $x_i$ that has not yet been disclosed, \textbf{(ii)} force the user agent to compute $f(z_1, \dots, z_d)$ where $ z_i\in X$, for some arbitrary function $f$ specified by $\mathcal{A}$ and \textbf{(iii)} re-request a value that has already been disclosed. In the final turn, $\mathcal{A}$ requests the roots required for task computation and applies the target function $T$ on the sanitized values it receives. The user does not compute $T$ itself; computing $T(\hat{X})$ and the downstream clinical interpretation is $\mathcal{A}$'s service. This capability model captures both prompt injection attacks~\cite{greshake2023indirect,zhan2024injecagent}, where a compromised service forces the agent to execute arbitrary computations, and malicious-by-design services that deliberately probe the user's data.
+
+\paragraph{Adversary knowledge.} The adversary has full knowledge of $\mathcal{U}$'s sanitization scheme: the mechanism, its parameters, and the per-root budget allocation (if any). Optionally, $\mathcal{A}$ may possess population-level statistics (e.g., mean and variance of each root in the general population), which it can use as a prior.
+
+\paragraph{Public vs.\ private knowledge.} The service's task computation $T(\hat{X})$ typically decomposes into a known intermediate $g(\hat{X})$ --- a published clinical formula, an MCP tool schema~\cite{anthropic2024mcp}, or any well-known computation a domain-aware agent can identify (e.g., the FIB-4 score $g = \text{age} \cdot \text{AST} / (\text{PLT} \cdot \sqrt{\text{ALT}})$) --- followed by downstream interpretation that the user does not know (risk thresholds, classification rules, recommendation logic). The user agent exploits the public form of $g$ to allocate sanitization budget across roots (Sec.~\ref{sec:opt-budget}). The opaque downstream interpretation is irrelevant for allocation: because $T$ is well-aligned with $g$'s accuracy --- small error in $g(\hat{X})$ produces small error in the classification --- minimizing error in $g$ is a faithful proxy for task utility. This asymmetry --- public intermediate $g$, private root values, opaque service-side $T$ --- defines the operational regime where dependency-aware sanitization applies.
+ 
+\paragraph{Adversary strategy.} Given the $t - 1$ observations gathered during the interaction, the adversary computes the Maximum A Posteriori (MAP) estimate of the root values:
+\[
+    \hat{X}_{\mathrm{MAP}} = \arg\max_{X} \prod_{i} p_{\mathcal{M}}(\tilde{y}_i \mid X) \cdot \pi(X),
+\]
+where $p_{\mathcal{M}}$ is the mechanism's likelihood and $\pi$ is the adversary's prior (uniform or informed). Under independent noising ($\mathcal{M}$-All), each observation contributes a fresh factor to the likelihood; under \sysname{}, repeated queries return identical cached values, collapsing the likelihood to a single factor regardless of $t$.
+ 
+\paragraph{Benign setting.} In a less adversarial scenario, $\mathcal{A}$ requests only task-relevant values and does not attempt reconstruction. The privacy concern in this case is passive: services may log released values, which could be later exposed through data breaches or subpoenas. \sysname{}'s guarantees hold in both settings --- the post-processing property does not depend on the adversary's intent.
+
+\paragraph{Scope of evaluation.} Our experiments (Sec.~\ref{sec:experiments-rq2}) evaluate repeated direct root queries. Under independent noising, nonlinear derived-function queries could further amplify the adversary's advantage (Sec.~\ref{sec:nonlinear-amplification}), making our reported numbers a lower bound on its vulnerability. Under \sysname{}, the adversary's function choice is irrelevant: all releases are post-processing of the initial noised roots (Theorem~\ref{thm:privacy-guarantee}).
+
+\subsection{Setting}
+\label{sec:setting}
+Given the adversary model above, we formalize the interaction between $\mathcal{U}$ and $\mathcal{A}$ as a directed acyclic graph (DAG) $G = (V, E)$, constructed incrementally as the conversation progresses.
+ 
+\begin{itemize}
+    \item \textbf{Root nodes.} The user's private input values $X = (x_1, \ldots, x_k)$, which initialize the vertex set $V$. Each $x_i$ takes values in a bounded domain $\mathcal{X}_i = [\ell_i, u_i] \subset \mathbb{R}$ with domain width $D_i = u_i - \ell_i$.
+    \item \textbf{Computed nodes.} Derived values $Y = \{y_1, \ldots, y_l\}$, where each $y_j = f_j(\mathrm{parents}(y_j))$ for some function $f_j$ specified by $\mathcal{A}$, with $\mathrm{parents}(y_j) \subseteq X \cup Y$. Each dependency $(p, y_j)$ forms a directed edge in $E$.
+    \item \textbf{Target node.} The value $T(X)$ that completes the task --- a known, deterministic function of the roots (e.g., $\text{FIB4} = \text{age} \cdot \text{AST} / (\text{PLT} \cdot \sqrt{\text{ALT}})$). In the final turn, $\mathcal{A}$ requests the roots needed for task computation, computes $T(\hat{X})$ on the sanitized values it receives, applies its downstream interpretation, and returns the resulting clinical decision to the user.
+\end{itemize}
+ 
+\noindent During the interaction, each request from $\mathcal{A}$ adds a node to $G$. The user agent $\mathcal{U}$ computes the requested value and releases a sanitized version according to its sanitization scheme. The DAG serves as a stateful record of what has been released and how values depend on one another.
+ 
+\paragraph{User goal.} The user agent must release sanitized values that enable accurate computation of $T(\hat{X})$ on $\mathcal{A}$'s side while minimizing the adversary's ability to reconstruct the true root values $X$. The user may exploit public domain knowledge (tool schemas, published formulas) to improve its privacy-utility tradeoff (Sec.~\ref{sec:exploiting-dependencies}).
+ 
+\paragraph{Remark on NER} In a full deployment, a named entity recognition (NER) model identifies sensitive tokens in the user's prompt before sanitization. Following Pr$\epsilon\epsilon$mpt~\cite{chowdhury2025}, we assume perfect NER throughout this paper and focus on the sanitization mechanism itself, as it is orthogonal to the privacy-utility tradeoff we study.

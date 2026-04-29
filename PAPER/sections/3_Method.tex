@@ -1,0 +1,88 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Method}
+\label{sec:method}
+% \sarthak{We should definitely discuss the precomputation of DAG somewhere are modeling conversation between the user and remote LLM and precomputing it, implies fixing the conversation}
+
+\subsection{System Overview}
+\label{sec:system}
+ 
+\sysname{} consists of a \emph{DAG controller} that manages privacy state across the conversation, and a \emph{prompt sanitizer} that formats each release into natural language.
+ 
+\paragraph{Initialization.} Before the conversation begins, the controller sanitizes each root independently (Sec.~\ref{sec:sanitization}) and caches the noised values $\hat{X} = (\hat{x}_1, \ldots, \hat{x}_k)$. If the user has knowledge of dependencies among the declared roots (e.g., BMI depends on height and weight), the controller identifies the true independent roots, recomputes the dependent roots from their noised parents, and updates the cache accordingly (Sec.~\ref{sec:exploiting-dependencies}). If the user knows the intermediate $g$ that the service's task $T$ depends on (Sec.~\ref{sec:threat-model}), the controller computes per-root sensitivities of $g$ and allocates budgets to minimize error in $g(\hat{X})$ (Sec.~\ref{sec:opt-budget}); otherwise, budget is distributed uniformly.
+ 
+% \paragraph{Per-turn operation.} When $\mathcal{A}$ requests a value, the controller adds a node to $G$ and returns either the cached noised root or a derived value computed deterministically from cached parents. No fresh noise is ever drawn after initialization. By the post-processing theorem of differential privacy~\cite{dwork2006calibrating}, no additional privacy cost is incurred beyond the initial root sanitization. A separate \emph{prompt sanitizer} (not evaluated in this work) wraps each released value into a natural-language response; our experiments bypass this layer to isolate the privacy-utility tradeoff (Sec.~\ref{sec:exp-setup}).
+
+\paragraph{Per-turn operation.} Each request from $\mathcal{A}$ is answered with the cached noised root or a derived value computed deterministically from cached parents; no fresh noise is drawn after initialization. By the post-processing theorem~\cite{dwork2006calibrating}, no additional privacy cost is incurred beyond the initial root sanitization.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Sanitization}
+\label{sec:sanitization}
+
+\paragraph{Baseline: independent noising ($\mathcal{M}$-All).} Without structural knowledge of the roots, the default sanitization strategy is to treat each request independently. When $\mathcal{A}$ requests a value, the user computes it from the original (unsanitized) values and applies fresh, independent noise. This produces independent noisy releases of values that share the same underlying roots, giving the adversary multiple observations to combine. The structural redundancy this creates is exploitable (Sec.~\ref{sec:redundancy-noising}), and the total privacy cost grows with the number of releases.
+ 
+\paragraph{\sysname{}.} Our proposed framework improves on this by exploiting the user's knowledge of the root nodes. It sanitizes the roots \emph{once} at the start of the interaction and computes all subsequent releases deterministically from the noised roots. By the post-processing theorem~\cite{dwork2006calibrating}, no additional privacy cost is incurred regardless of what $\mathcal{A}$ requests. The method's effectiveness improves further with additional structural knowledge (Sec.~\ref{sec:exploiting-dependencies}).
+ 
+Both methods sanitize values according to two categories of root, following Pr$\epsilon\epsilon$mpt~\cite{chowdhury2025}.
+ 
+\paragraph{Category-I roots ($\tau_I$).} Roots whose utility depends only on format (e.g., names, identifiers) are sanitized via format-preserving encryption: $\hat{x}_i \gets E_F(K, N_{\tau_i}, x_i)$.
+ 
+\paragraph{Category-II roots ($\tau_{II}$).} Roots whose utility depends on numerical value (e.g., lab measurements) are sanitized via a differentially private mechanism: $\hat{x}_i \gets \mathcal{M}_{\epsilon_i}(x_i)$, with total budget $\sum_{i \in [\tau_{II}]} \epsilon_i = B$. Each root has domain $[\ell_i, u_i]$ with width $D_i$, discretized into $m$ candidates with spacing $\delta_i = D_i/(m{-}1)$.
+ 
+\paragraph{Index-space normalization.}
+All Category-II mechanisms operate in a shared index space $\{0, \ldots, m{-}1\}$. The true value $x_i$ is mapped to a normalized index $t_i = (m-1)(x_i - \ell_i)/D_i$, noise is drawn in index units according to the mechanism's distribution, the result is clamped to $[0, m{-}1]$ and rounded to the nearest integer $s$, and the output is mapped back to domain units as $x_i' = s \cdot \delta_i + \ell_i$. The sensitivity in index space is $1$ for all three mechanisms used in our experiments (Sec.~\ref{sec:exp-setup}), so a unit of $\epsilon$ provides the same worst-case index-space distinguishability for every node and is directly comparable across mechanisms, regardless of domain width. Without this normalization, the noise scale in domain units ($\delta_i = D_i/(m-1)$) would vary across nodes, making the same $\epsilon$ provide vastly different physical protection (e.g., $\delta = 0.013$ for hemoglobin vs.\ $\delta = 2.67$ for triglycerides). This enables direct comparisons across nodes and a meaningful total budget $B = \sum_r \epsilon_r$ for principled budget allocation.
+
+% \sarthak{Examples for each category needed.}
+
+\subsection{Exploiting Structural Knowledge}
+\label{sec:exploiting-dependencies}
+ 
+\sysname{}'s privacy and utility improve with the user's structural knowledge, exploited at two progressive levels.
+ 
+\paragraph{Level 1: Inter-root dependencies.} The user knows that some declared roots depend on others (e.g., BMI depends on height and weight). True independent roots are identified, and dependent roots are recomputed from noised parents. This reduces the number of noise draws from $k$ to $k' < k$. By the Implied Privacy theorem (Theorem~\ref{thm:implied-privacy}), dependent roots inherit $\epsilon/m_j$-mDP privacy for free.
+ 
+\paragraph{Level 2: Target sensitivity.} The user wants the service's clinical decision $T(\hat{X})$ to be accurate, but does not know the threshold logic that maps the service's intermediate computation to the final decision. What the user does have is knowledge of an intermediate $g$ that $T$ depends on --- typically a published clinical formula (e.g., the FIB-4 score $g = \text{age} \cdot \text{AST} / (\text{PLT} \cdot \sqrt{\text{ALT}})$, on which liver-fibrosis risk classification depends) or any computation declared in an MCP tool schema. Because $T$ is well-aligned with $g$'s accuracy, minimizing error in $g(\hat{X})$ is a faithful proxy for task utility. This enables sensitivity-weighted budget allocation (Sec.~\ref{sec:opt-budget}).
+ 
+\paragraph{Configurations evaluated.} We compare three configurations that progressively exploit structural knowledge: $\mathcal{M}$-All (independent noising; no structural knowledge), $\mathcal{M}$-Roots (root-only noising with uniform allocation $\epsilon_i = B/k$), and $\mathcal{M}$-Opt (root-only noising with sensitivity-weighted allocation; full \sysname{}). The progression $\mathcal{M}$-All~$\to$~$\mathcal{M}$-Roots isolates the gain from eliminating redundant noising; $\mathcal{M}$-Roots~$\to$~$\mathcal{M}$-Opt isolates the gain from dependency-aware allocation. The levels degrade gracefully: when structural knowledge is unavailable, the unknown dependencies are treated independently and the method reduces to the prior level.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Sensitivity-Weighted Budget Allocation}
+\label{sec:opt-budget}
+
+\noindent The user's task utility is the accuracy of the service's clinical decision $T(\hat{X})$, which depends on an intermediate $g(\hat{X})$ via threshold logic the user does not know (Sec.~\ref{sec:threat-model}). Because $T$ is well-aligned with $g$'s accuracy, we minimize the expected absolute error of $g$ at allocation time, subject to the total budget constraint. Without loss of generality, let $x = (x_1, \dots,x_k)$ contain only $\tau_{II}$ roots (Category-I roots are sanitized via FPE under a separate security parameter and do not consume the DP budget). Let $g\colon \mathbb{R}^k \to \mathbb{R}$ be a known, differentiable intermediate that the service consumes en route to its decision. Suppose root $i$ has domain $[\ell_i, u_i]$, with width $D_i = u_i - \ell_i > 0$, discretized into $m$ candidates of width $\delta_i = D_i/(m-1)$. The partial derivative $\partial g / \partial x_i$ measures how sensitively $g$ responds to perturbations in root $i$. We evaluate the sensitivity at the population mean of each root:
+\[
+    h_i = \left|\frac{\partial g}{\partial x_i}(\mu)\right|,
+\]
+where the population means $\mu = (\mu_1, \dots, \mu_k)$ are a single publicly available vector (in our experiments, we use the NHANES data held out from the test set; see Sec.~\ref{sec:experiments-rq1}). The computed weights at the population means reflect how $g$ responds to perturbations around a typical patient, rather than at the pathological worst case. Since $\mu$ is computed from a public dataset independent of the private data being sanitized, the allocation remains fixed across all patients and no information flows from patient to mechanism. 
+
+A first-order expansion of the error $\Delta = g(x') - g(x)$ in the per-root noise $\eta_i = x'_i - x_i$ gives $\Delta \approx \sum_i h_i \eta_i$. Minimizing the upper bound $\mathbb{E}[|\Delta|] \leq \sum_i |h_i|\,\bar{\eta}_i(\epsilon_i)$ subject to $\sum_i \epsilon_i = B$ and $\epsilon_i \geq \epsilon_{\min}$, where $\bar{\eta}_i$ is the worst-case expected noise over grid positions, yields the closed-form Laplace solution $\epsilon_i \propto \sqrt{|h_i|\,\delta_i}$ (full derivation, including saturation handling and the convexity argument, in App.~\ref{app:budget-derivation}). The objective is separable and solved numerically for the discrete Exponential, Bounded Laplace, and Staircase mechanisms; RQ3 (Sec.~\ref{sec:experiments-rq3}) verifies the $\sqrt{|h_i|\,\delta_i}$ scaling holds empirically for all three.
+
+% Each root is independently sanitized via a mechanism ($\mathcal{M}_{\epsilon_i}$), and output index $s$,  giving domain-unit noise $\eta_i = (s - t_i)\,\delta_i$. Let $x' = (x_1', \dots, x_k')$ be the vector of sanitized roots, where $x'_{i} = s\,\delta_i + \ell_i$. The error in the intermediate $g$ is given by $\Delta = g(x_1', x_2', \dots, x_k') - g(x_1, x_2, \dots, x_k).$ The first order approximation of the error $\Delta$ is given by $\Delta \approx \sum_{i=1}^{k} h_i\,\eta_i$.
+
+% We seek to minimize the expected absolute error (over the randomness of the mechanism), subject to the total budget constraint. Applying the triangle inequality inside the expectation,
+% \[
+%     \mathbb{E}\big[|\Delta|\big]
+%     \;\approx\; \mathbb{E}\Big[\Big|\sum_{i=1}^k h_i\,\eta_i\Big|\Big]
+%     \;\leq\; \sum_{i=1}^k |h_i|\,\mathbb{E}\big[|\eta_i|\big],
+% \]
+% where the last step uses the triangle inequality and linearity of expectation. Since the $\eta_i$ are independent (each mechanism uses independent randomness), this upper bound is tight up to cancellation effects.
+
+% The expected absolute noise $\mathbb{E}[|\eta_i|]$ depends on $t_i$, the true value's position within the grid. To ensure the optimization is data-independent, we take the worst case over all positions, defining
+% \begin{equation}
+% \label{eq:bar-eta}
+%     \bar{\eta}_i(\epsilon_i) = \sup_{t_i \in [0,\, m-1]} \mathbb{E}\big[|\eta_i|\big],
+% \end{equation}
+
+% \noindent We therefore minimize:
+% \begin{equation}
+% \label{eq:opt-budget}
+%     \min_{\epsilon_1, \dots, \epsilon_k} \sum_{i=1}^k |h_i| \cdot \bar{\eta}_i(\epsilon_i) \quad \text{subject to} \quad \sum_{i=1}^k \epsilon_i = B, \quad \epsilon_i \geq \epsilon_{\min} \;\; \forall\, i.
+% \end{equation}
+
+% The objective is separable and solved numerically for each mechanism. For the Laplace approximation, the closed-form solution is $\epsilon_i \propto \sqrt{|h_i|\,\delta_i}$ (App.~\ref{app:budget-derivation}). RQ3 verifies that this scaling holds empirically across all three discrete mechanisms (Sec.~\ref{sec:experiments-rq3}).

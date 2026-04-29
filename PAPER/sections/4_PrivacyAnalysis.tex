@@ -1,0 +1,159 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Privacy Analysis}
+
+\noindent We define a privacy game to capture an adversary's ability to distinguish between two sanitized root vectors.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{DAG Privacy Game $G_{\mathrm{DAG}}$}
+
+The adversary $\mathcal{A}$ chooses two root vectors $X^0$ and $X^1$ with the same leakage and any arbitrary set of functions $F=\{f_1, \dots, f_l\}$. The user sanitizes a randomly selected root vector ($\hat{X}^b$) and returns it to the adversary. Since the adversary controls the interaction with the user agent, it can compute any $f_i$ on the released root vector $\hat{X}^b$ to improve its advantage, and constructs the conversation DAG $\hat{G}_b$. Given $X^0$ and $X^1$, the adversary must guess which root vector was selected. 
+
+\begin{algorithmic}[1]
+\Statex \underline{Initialize}:
+\State $K \leftarrow S()$
+\State $b \overset{{\scriptscriptstyle\$}}{\leftarrow} \{0,1\}$ \textcolor{blue}{$\rhd$} Select a random bit
+\Statex \underline{$\mathrm{Challenge}(X^0, X^1,F)$}: \textcolor{blue}{$\rhd$} Adversary selects two root vectors and an arbitrary set of functions
+\State $L_0 \gets L(X^0, F, C)$ ; $L_1 \gets L(X^1, F, C)$
+\Statex \textcolor{blue}{$\rhd$} $L$ is the leakage function; $F$ is the public function set
+\State \textbf{if} $L_0 \neq L_1$ \textbf{then return} $\bot$
+\Statex \textcolor{blue}{$\rhd$} Only root pairs with the same leakage are valid
+\Statex \underline{Sanitize and Construct}:
+\State \textbf{for} $i \in \mathcal{I}$: $\hat{x}^b_i \gets E_F(K, N_{\tau_i}, x^b_i)$ \textcolor{blue}{$\rhd$} FPE for category-I roots
+\State \textbf{for} $i \in \mathcal{II}$: $\hat{x}^b_i \gets \mathcal{M}_{\epsilon_i}(x^b_i)$ \textcolor{blue}{$\rhd$} mDP for category-II roots; sampled once, reused
+\State \textbf{return} $\hat{X}^b$ \hfill \textcolor{blue}{$\rhd$} User returns the sanitized roots. Adversary may compute the full graph $\hat{G}_b \gets C(\hat{X}^b, F)$ from sanitized roots and use any strategy to guess $b$.
+% \Statex \textcolor{blue}{$\rhd$} Return the sanitized graph to the adversary
+\Statex \underline{$\mathrm{Finalize}(b')$}:
+\State \textbf{return} $[b' = b]$ \hfill \textcolor{blue}{$\rhd$} $b'$ is the adversary's guess for $b$
+\end{algorithmic}
+
+\medskip
+The adversary's advantage is defined as: 
+\begin{align}
+\label{alg:full-dag-adv}
+    \mathrm{Adv}_{\mathrm{DAG}}(\mathcal{A}) = |2\Pr[G_{\mathrm{DAG}}(\mathcal{A}) = 1] - 1|
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Privacy Guarantee}
+
+\begin{theorem}[DAG Privacy Guarantee] Consider an adversary $\mathcal{A}$ in the setting of the full-graph privacy game $G_{\mathrm{DAG}}$. Let $(X^0, X^1, F)$ be the adversary's chosen root vectors and function set, with roots of type $\tau_I$ and $\tau_{II}$. For the DAG privacy game with the privacy budget $\sum_{i\in[\tau_{II}]} \epsilon_i = B$ and the security parameter $\kappa$, 
+
+\begin{align}
+    \mathrm{Adv}_{\mathrm{DAG}}(\mathcal{A}) \leq \sum_{i\in[\tau_{II}]} e^{\frac{\epsilon_i}{\delta_i}|x^0_i - x^1_i|} + \big|[\tau_{I}]\big|\cdot\mathrm{negl}(\kappa).
+\end{align}
+\label{thm:privacy-guarantee}
+The bound depends only on the root sanitization parameters $\epsilon_i$ and the root distances $|x^0_i - x^1_i|$. It is independent of the adversary's choice of functions $F$ as it gains no additional distinguishing power from computing arbitrary functions on the sanitized roots.
+\end{theorem}
+
+\paragraph{Proof Sketch} Since the adversary's view is entirely determined by $\hat{X}^b$, we bound the advantage directly via a hybrid argument over the roots. Define hybrids $X^{(0)} = X^0, \ldots, X^{(k)} = X^1$, where each consecutive pair differs in a single root. By the triangle inequality, the total advantage is bounded by the sum of single-root advantages. Each single-root advantage is bounded by FPE security (for $\tau_I$ roots) or the $\epsilon_j$-mDP guarantee (for $\tau_{II}$ roots). Since the bound involves only root parameters and distances, it holds for every choice of $F$, including the adversary's optimal choice. The full proof is given in App.~\ref{app:thm:privacy-guarantee}.
+ 
+\begin{remark}[Contrast with independent noising]
+\label{rem:m-all-contrast}
+Under $\mathcal{M}$-All, the user independently noises each requested value and returns all noised values to the adversary. The adversary therefore receives independently noised versions of both $x_i$ and $f(x_i)$, obtaining multiple independent observations about the same root. The privacy cost of these additional releases is not captured by the root-only bound above and is analyzed in Sec.~\ref{sec:privacy-leakage}.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Privacy Leakage due to Independent Noising}
+\label{sec:privacy-leakage}
+
+
+
+Under the index-space mechanisms described in Sec.~\ref{sec:sanitization}, every node is mapped to the same index space $\{0, \ldots, m{-}1\}$ before noising. Independently releasing $\mathcal{M}_1(x)$ and $\mathcal{M}_2(f(x))$, each with parameter $\epsilon$, yields $2\epsilon$-mDP with respect to the index-space metric $d(t,t') = |t - t'|$. Since every node's index distance is bounded by $(m{-}1)$, this guarantee appears uniform across nodes.
+
+However, independent noising creates two distinct sources of additional leakage that this guarantee does not capture: amplification through nonlinear functions (Sec.~\ref{sec:nonlinear-amplification}) and accumulation through repeated queries (Sec.~\ref{sec:redundancy-noising}).
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{\textbf{Amplification through nonlinear functions.}}
+\label{sec:nonlinear-amplification}
+ 
+Consider two root values $x_0, x_1$ separated by $d$ index steps: $|t_{x_0} - t_{x_1}| = d$. In domain space, this corresponds to $|x_0 - x_1| = d \cdot D_x / (m{-}1)$. The derived values' index-space distance is:
+\[
+    |t_{f(x_0)} - t_{f(x_1)}| = \frac{m-1}{D_y}|f(x_0) - f(x_1)| \leq \frac{L \cdot D_x}{D_y} \cdot d,
+\]
+where $L$ is the Lipschitz constant of $f$ and $D_y$ is the derived domain width. The effective \emph{index-space amplification factor} is $L \cdot D_x / D_y$.
+ 
+For linear functions this factor is exactly $1$ (normalization absorbs linear scaling). For nonlinear functions it can far exceed $1$: e.g., $f(x) = 1/x$ on $[1, 100]$ yields ${\sim}100\times$ amplification. The functions underlying the medical templates used in our experiments (Sec.~\ref{sec:exp-setup}) exhibit this behavior. We formalize the amplification in the following theorem:
+
+\begin{theorem}[Distinguishability Amplification]
+\label{thm:privacy-leakage}
+Let $(\mathcal{X}, d_{\mathcal{X}})$ and 
+$(\mathcal{Y}, d_{\mathcal{Y}})$ be metric spaces. Let 
+$f\colon \mathcal{X} \to \mathcal{Y}$ be a Lipschitz function 
+satisfying, for all $x, x' \in \mathcal{X}$,
+\[
+    \alpha \cdot d_{\mathcal{X}}(x, x') 
+    \;\leq\; 
+    d_{\mathcal{Y}}(f(x), f(x')) 
+    \;\leq\; L \cdot d_{\mathcal{X}}(x, x'),
+\]
+for constants $\alpha, L > 0$. Let $\mathcal{M}\colon \mathcal{Y} \to \mathcal{Y}$ be an $\epsilon$-mDP mechanism on $(\mathcal{Y}, d_{\mathcal{Y}})$. Define $\psi = \mathcal{M} \circ f \colon \mathcal{X} \to \mathcal{Y}$. Then for all $x, x' \in \mathcal{X}$ and all measurable $T \subseteq \mathcal{Y}$:
+\[
+    \Pr[\psi(x) \in T] 
+    \;\leq\; 
+    e^{\epsilon\, L\, d_{\mathcal{X}}(x, x')} 
+    \Pr[\psi(x') \in T].
+\]
+That is, the distinguishability level~\cite{Chatzikokolakis2013BroadeningTS} between any two inputs $x, x'$ is amplified by a factor of $L$ relative to the nominal parameter $\epsilon$. As $L$ is a supremum, the bound is tight.
+\end{theorem}
+ 
+The proof is available in App.~\ref{app:thm:privacy-leakage}. In index space, the amplification factor becomes $L_{\mathrm{idx}} = L \cdot D_x / D_y$.
+
+\subsubsection{Accumulation through repeated releases.}
+\label{sec:redundancy-noising}
+ 
+When $\mathcal{M}$-All independently sanitizes both $x$ and $f(x)$, the joint distinguishability is additive: $\epsilon(1 + L)\,d_\mathcal{X}(x,x')$. More generally, with $d$ independently noised derived nodes $f_i(x)$ (each $(m_i, L_i)$-bi-Lipschitz, parameter $\epsilon$), the joint level is $\epsilon(1 + \sum_{i=1}^{d} L_i)\,d_\mathcal{X}(x,x')$. Under the worst-case adversary, even repeated root queries (where $L_{\mathrm{idx}} = 1$) produce fresh noise draws, enabling MAP estimation that reduces reconstruction error as $\sqrt{t{-}1}$.
+ 
+\paragraph{MAP reconstruction.} The accumulation of independent observations has a concrete operational consequence. An adversary who observes $t-1$ independent releases of a root $x_r$ can compute the Maximum A Posteriori estimate:
+\[
+    \hat{x}_{\mathrm{MAP}} = \arg\max_{x_r} \prod_{i=1}^{t-1} p_{\mathcal{M}}(\tilde{y}_i \mid x_r, \epsilon) \cdot \pi(x_r),
+\]
+where $p_{\mathcal{M}}$ is the mechanism's PMF and $\pi$ is any prior. Under \sysname{}, all queries return the same deterministic output $\hat{x}_r$, so the likelihood reduces to a single factor $p_{\mathcal{M}}(\hat{x}_r \mid x_r, \epsilon_r)$ regardless of $t$. We evaluate this attack empirically in Sec.~\ref{sec:experiments-rq2}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Implied Privacy} The preceding section quantifies the cost of independent noising. We now show the converse, a coordinated mechanism that noises only the roots automatically extends privacy to all derived nodes, with no additional expenditure of budget.
+
+\begin{theorem}[Implied Privacy]
+\label{thm:implied-privacy}
+Let $(\mathcal{X}, d_{\mathcal{X}})$ and $(\mathcal{Y}, d_{\mathcal{Y}})$ be metric spaces. 
+Let $\mathcal{M}: \mathcal{X} \to \mathcal{X}$ be an $\epsilon$-metric differentially private ($\epsilon$-mDP) mechanism on $(\mathcal{X}, d_{\mathcal{X}})$ that adds noise to its input.
+
+Let $f: \mathcal{X} \to \mathcal{Y}$ be a bi-Lipschitz function satisfying, for all $x, x' \in \mathcal{X}$,
+\[
+    \alpha \cdot d_{\mathcal{X}}(x, x') 
+    \;\leq\; d_{\mathcal{Y}}(f(x), f(x')) 
+    \;\leq\; L \cdot d_{\mathcal{X}}(x, x') ,
+\]
+for some constants $\alpha, L > 0$. Define a post-processing mechanism $\phi = f \circ \mathcal{M} : \mathcal{X} \to \mathcal{Y}.$ Then, for all $x, x' \in \mathcal{X}$ and all measurable sets $T \subseteq \mathcal{Y}$,
+\[
+    \Pr[\phi(x) \in T]
+    \;\leq\;
+    e^{\frac{\epsilon}{\alpha} \, d_{\mathcal{Y}}(f(x), f(x'))}
+    \Pr[\phi(x') \in T].
+\]
+where the probability is taken over the randomness of $\mathcal{M}$. Equivalently, $\phi$ is $\frac{\epsilon}{\alpha}$-mDP with respect to the metric $d_{\mathcal{Y}}(f(x), f(x'))$.
+
+Hence, adding mDP noise directly to $y = f(x)$ in $(\mathcal{Y}, d_{\mathcal{Y}})$ with privacy parameter $\frac{\epsilon}{\alpha}$ provides at least as strong privacy as noising $x$ and then applying $f$.
+\end{theorem}
+
+The proof is available in App.~\ref{app:thm:implied-privacy}. In index space, the inherited parameter is $\epsilon \cdot D_y / (\alpha \cdot D_x)$; when $D_y/D_x$ is small, strong protection is inherited for free. Combined with Theorem~\ref{thm:privacy-guarantee}, this guarantees that under \sysname{}, repeated queries and derived functions return deterministic post-processing of the initial noised roots, and the adversary's reconstruction power does not grow with $t$.
