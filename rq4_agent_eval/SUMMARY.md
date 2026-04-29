@@ -51,10 +51,28 @@
 ## LLM compliance
 
 - Sessions with any parse failure: **0 / 28800**.
-- Observation-level parse failures: **0 / 161784**.
+- Observation-level parse failures: **0 / 162000**.
 - NaN target sessions: **0**.
-- Rounding gaps (text reply ≠ wire-format sanitize output): **0 / 161784** observations.
+- Rounding gaps (text reply ≠ wire-format sanitize output): **0 / 162000** observations.
 - Transcripts saved: **14500 / 28800** (50.3%). The remainder are pre-alias-parser ε=0.1 sessions that ran before transcript saving was added.
+
+> **Note on the obs-total figure.** Earlier runs of `analysis/aggregate.py`
+> reported wire-observation totals of 161,784. This was an analysis-pipeline
+> artifact, not a real LLM compliance failure: `_record_obs` in
+> `attack/adversary.py` reverse-mapped each `sanitize(value=…)` call back
+> to a root by closest raw-value, which collides whenever two of a patient's
+> roots happen to have identical raw values (e.g. FIB-4 patients where
+> AST = ALT, NLR patients where neutrophils = lymphocytes). The collision
+> attributed both tied roots' sanitize calls to the alphabetically-first
+> root and dropped the second's wire entries. 216 observations were lost
+> this way (FIB4: 162, NLR: 54). The LLM emitted the values correctly,
+> the mechanism sanitized them correctly, the text-side parser captured
+> them correctly (`parse_failures = 0`); only the wire-side accounting
+> miscounted. **Nothing reported in the paper is affected** — wMAPE, RCE,
+> per-root MAP MAE all consume the text-side `observations` field, not
+> `wire_observations`. The reverse-mapper is now tie-safe (prefers roots
+> still pending in this turn's `names_requested` order) and the nominal
+> total is 162,000.
 
 ## Caveats
 

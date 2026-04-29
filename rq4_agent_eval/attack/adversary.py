@@ -207,22 +207,40 @@ class Adversary:
         """
         parsed = parse_values_from_reply(reply, template_roots=self.template.roots)
 
-        # Wire-format truth: M-All -> match each sanitize call to the root
-        # whose raw value the LLM passed in. RootGuard -> the cached value
-        # from the rootguard the proxy is wrapping.
+        # Wire-format truth: M-All -> reverse-map each sanitize call to the
+        # root whose raw value the LLM passed in. RootGuard -> the cached
+        # value from the rootguard the proxy is wrapping.
+        #
+        # Reverse-mapping by raw value alone is ambiguous when two of the
+        # patient's roots happen to have the *same* raw value (e.g. AST=ALT=16
+        # U/L, common in FIB-4 lab panels). To break ties safely we walk the
+        # sanitize calls in dispatcher order and prefer the next still-pending
+        # root in `names_requested` whose raw value matches — falling back to
+        # any value-matching root only when no pending request matches.
         new_calls = proxy.dispatcher.calls[new_call_start:]
         sanitize_calls_by_root: Dict[str, list] = defaultdict(list)
+        remaining = list(names_requested)
         for c in new_calls:
             if c["name"] != "sanitize":
                 continue
             in_value = float(c["arguments"]["value"])
-            # Match on raw value: the only way to reverse-map a sanitize
-            # call's input back to a root name without snooping the LLM.
-            best = min(raw.keys(), key=lambda r: abs(raw[r] - in_value))
-            if abs(raw[best] - in_value) < 1e-9:
-                sanitize_calls_by_root[best].append(
-                    float(c["result"]["sanitized_value"])
-                )
+            chosen = None
+            # Prefer a root that's still pending in this turn's request order.
+            for r in remaining:
+                if r in raw and abs(raw[r] - in_value) < 1e-9:
+                    chosen = r
+                    remaining.remove(r)
+                    break
+            # Fallback: any root in `raw` whose value matches.
+            if chosen is None:
+                candidates = [r for r in raw if abs(raw[r] - in_value) < 1e-9]
+                if candidates:
+                    chosen = candidates[0]
+            if chosen is None:
+                continue
+            sanitize_calls_by_root[chosen].append(
+                float(c["result"]["sanitized_value"])
+            )
 
         rg = getattr(proxy.dispatcher, "rootguard", None)
 
