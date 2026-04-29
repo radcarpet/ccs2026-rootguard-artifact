@@ -17,7 +17,13 @@ from utils.med_domain.all_templates import template_edges
 
 RECON_DIR = "results_rq3_adversarial_v3"
 ALLOC_DIR = "allocations_v2"
-BENCHMARK_PATH = "./data/nhanes_benchmark_200.json"
+# Benchmark data lives at the repo root (../data/), one level up from this RQ folder.
+# Fall back to ./data/ for legacy callers that supply a local copy.
+_REPO_ROOT_DATA = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "data", "nhanes_benchmark_200.json",
+)
+BENCHMARK_PATH = _REPO_ROOT_DATA if os.path.exists(_REPO_ROOT_DATA) else "./data/nhanes_benchmark_200.json"
 
 EPSILONS = [0.01, 0.05, 0.1, 0.5, 1.0]
 Q_VALUES = [1, 4, 8, 16]

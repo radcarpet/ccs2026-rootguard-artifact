@@ -53,11 +53,13 @@ python analysis/gen_double_asymmetry_table.py
 python analysis/gen_appendix_summary.py
 python analysis/gen_main_tables.py
 
-# 4. Build the Risk Class Error (RCE) tables (root-space).
-#    Produces tables/root_space/{rq1_kplus1_rce.tex, rq1_2kplus1_rce.tex,
-#    rq1_3kplus1_rce.tex, rq1_rce_per_template.tex}: the appendix aggregate
-#    RCE tables (tab:rq1_*_rce) and the body per-template RCE table
-#    (tab:rce_per_template_rq1) cited in §5 of the paper.
+# 4. Build the root-space wMAPE + Risk Class Error tables (paper-canonical).
+#    Produces tables/root_space/:
+#      rq1_double_asymmetry.tex          tab:double_asymmetry      (body §5)
+#      rq1_rce_per_template.tex          tab:rce_per_template_rq1  (body §5)
+#      rq1_{k,2k,3k}plus1_wmape.tex      tab:rq1_*_wmape           (appendix)
+#      rq1_{k,2k,3k}plus1_rce.tex        tab:rq1_*_rce             (appendix)
+#      rq1_{k,2k,3k}plus1_per_tmpl_wmape.tex tab:rq1_*_per_tmpl_wmape (appendix)
 python analysis/gen_rce_tables.py
 
 # 5. Build figures (target-space).
@@ -75,11 +77,12 @@ tables/
     latex_rq1_double_asymmetry.tex   tab:double_asymmetry (main text)
     latex_rq1_adversarial_summary.tex appendix tables
     latex_rq1_new.tex
-  root_space/                    target-from-noised-roots variant
-    rq1_kplus1_rce.tex           tab:rq1_kplus1_rce (appendix)
-    rq1_2kplus1_rce.tex          tab:rq1_2kplus1_rce (appendix)
-    rq1_3kplus1_rce.tex          tab:rq1_3kplus1_rce (appendix)
+  root_space/                    target-from-noised-roots variant (paper-canonical)
+    rq1_double_asymmetry.tex     tab:double_asymmetry (main text §5)
     rq1_rce_per_template.tex     tab:rce_per_template_rq1 (main text §5)
+    rq1_{k,2k,3k}plus1_wmape.tex tab:rq1_{k,2k,3k}plus1_wmape (appendix)
+    rq1_{k,2k,3k}plus1_rce.tex   tab:rq1_{k,2k,3k}plus1_rce (appendix)
+    rq1_{k,2k,3k}plus1_per_tmpl_wmape.tex tab:rq1_{k,2k,3k}plus1_per_tmpl_wmape (appendix)
 plots/
   target_space/
     rq1_double_asymmetry.pdf     Figure 1: budget scaling

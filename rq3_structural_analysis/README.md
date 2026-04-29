@@ -32,6 +32,12 @@ python analysis/gen_allocation_plot_2kplus1.py
 # Per-template wMAPE breakdown (compressing vs amplifying).
 python analysis/gen_per_template_plot.py
 
+# §5 RQ3 body table tab:per_template_summary — per-template wMAPE at the
+# focal cell (ε=0.1, B=(2k+1)ε, Exponential), grouped into compressing
+# vs amplifying. Reads root-space data from
+# results_rq1_adversarial_2kplus1_wmape_root_based/ at the repo root.
+python analysis/gen_per_template_summary.py
+
 # Template-properties metadata table (roots, targets, formulas, domains).
 python analysis/gen_template_metadata_table.py
 
@@ -51,4 +57,5 @@ plots/
 tables/
   latex_template_metadata.tex         template metadata
   latex_rq2_fair_utility.tex          fair-utility analysis
+  per_template_summary.tex            tab:per_template_summary (main text §5 RQ3)
 ```

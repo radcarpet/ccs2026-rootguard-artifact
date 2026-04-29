@@ -12,7 +12,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gen_rq3_v3_loader import (
+from loader import (
     TEMPLATES, Q_VALUES, METHOD_LABELS,
     load_result, compute_wmape, fmt,
 )

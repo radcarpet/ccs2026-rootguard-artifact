@@ -17,7 +17,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gen_rq3_v3_loader import (
+from loader import (
     TEMPLATES, EPSILONS, Q_VALUES, PRIORS, MECHANISMS, METHOD_LABELS,
     TEMPLATE_PAIRS,
     load_result, load_allocation, compute_wmape, fmt,

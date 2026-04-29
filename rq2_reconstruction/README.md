@@ -27,10 +27,15 @@ python precompute_allocations.py
 #    q ∈ {1, 4, 8, 16}, 8 templates, 3 mechanisms, 3 strategies × 2 priors.
 python run.py    # ~30 min on 8 cores
 
-# 3. Build paper figures and tables.
-python analysis/gen_main_table.py
+# 3. Build paper figures and tables. gen_paper_tables.py emits the labels
+#    referenced by the paper text (tab:recon_main, tab:rq2_per_template,
+#    tab:rq2_exp_*, tab:rq2_blap_agg, tab:rq2_stair_agg). gen_main_table.py
+#    and gen_appendix.py emit the artifact's internal labels (tab:rq3_v2_*)
+#    for backward compatibility.
+python analysis/gen_paper_tables.py    # paper-side labels (recommended)
+python analysis/gen_main_table.py      # legacy labels (optional)
+python analysis/gen_appendix.py        # legacy labels (optional)
 python analysis/gen_main_figure.py     # writes fig_mae_vs_q_eps0.1_*.pdf
-python analysis/gen_appendix.py
 python analysis/gen_per_epsilon_plots.py
 python analysis/gen_per_template_plots.py
 ```
@@ -39,9 +44,16 @@ python analysis/gen_per_template_plots.py
 
 ```
 tables/
-  main_table_uniform.tex     tab:recon_main (main text, uniform prior)
-  main_table_informed.tex    same, informed (population-mean) prior
-  appendix.tex               appendix tables across all (ε, mechanism, strategy)
+  recon_main.tex             tab:recon_main             (main text §5)
+  rq2_per_template.tex       tab:rq2_per_template       (appendix)
+  rq2_exp_A_uniform.tex      tab:rq2_exp_A_uniform      (appendix)
+  rq2_exp_A_informed.tex     tab:rq2_exp_A_informed     (appendix)
+  rq2_exp_B_uniform.tex      tab:rq2_exp_B_uniform      (appendix)
+  rq2_exp_B_informed.tex     tab:rq2_exp_B_informed     (appendix)
+  rq2_blap_agg.tex           tab:rq2_blap_agg           (appendix)
+  rq2_stair_agg.tex          tab:rq2_stair_agg          (appendix)
+  main_table_{uniform,informed}.tex  legacy tab:rq3_v2_main_*  (backward compat)
+  appendix.tex                       legacy tab:rq3_v2_*       (backward compat)
 plots/
   main/
     fig_mae_vs_q_eps0.1_uniform.pdf       Figure: paper main-text recon plot
