@@ -22,7 +22,7 @@ from utils.utils import (
 from utils.med_domain.all_templates import (
     template_expressions, template_target_keys, template_nodes,
 )
-from rootguard.sanitizer import set_template_domains, MEDICAL_DOMAINS
+from preempt.sanitizer import set_template_domains, MEDICAL_DOMAINS
 
 # ── Configuration ────────────────────────────────────────────────────────────
 

@@ -38,7 +38,7 @@ from utils.med_domain.all_templates import (
     template_nodes, template_edges, template_expressions,
     template_target_keys,
 )
-from rootguard.sanitizer import MEDICAL_DOMAINS
+from preempt.sanitizer import MEDICAL_DOMAINS
 
 
 EPSILONS = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0]

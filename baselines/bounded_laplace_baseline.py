@@ -14,7 +14,7 @@ import math
 import random
 import numpy as np
 
-from rootguard.sanitizer import MEDICAL_DOMAINS
+from preempt.sanitizer import MEDICAL_DOMAINS
 from utils.utils import get_topological_order
 
 
@@ -202,7 +202,7 @@ def sanitize_blap_roots_opt(samples, nodes, edges, expressions, epsilon,
     """
     from utils.utils import (optimal_budget_allocation_blap,
                              compute_population_mean_sensitivities)
-    from rootguard import sanitizer
+    from preempt import sanitizer
 
     epsilon_blocks = []
     all_values = []
@@ -319,7 +319,7 @@ def sanitize_blap_roots_opt_weighted(
     """
     from utils.utils import (optimal_budget_allocation_blap_weighted,
                              compute_population_mean_sensitivities)
-    from rootguard import sanitizer
+    from preempt import sanitizer
 
     epsilon_blocks = []
     all_values = []

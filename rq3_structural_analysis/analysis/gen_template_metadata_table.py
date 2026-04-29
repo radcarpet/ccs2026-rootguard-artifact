@@ -14,7 +14,7 @@ from utils.med_domain.all_templates import (
     template_target_keys, template_nodes, template_expressions,
     template_layers, CDC_POPULATION_MEANS, get_local_partials,
 )
-from rootguard.sanitizer import TEMPLATE_DOMAINS
+from preempt.sanitizer import TEMPLATE_DOMAINS
 from utils.utils import compute_population_mean_sensitivities
 
 # ── Template definitions ─────────────────────────────────────────────────

@@ -15,7 +15,7 @@ rootguard-artifact/
 ├── data/                         NHANES benchmark + population stats (input data)
 │   ├── nhanes_benchmark_200.json
 │   └── holdout_population_means.json
-├── rootguard/                      core RootGuard algorithm
+├── preempt/                      core RootGuard algorithm
 ├── utils/                        shared utilities (sensitivity, allocation, topo order)
 ├── baselines/                    Bounded-Laplace and Staircase mechanism implementations (used in RQ1, RQ2)
 ├── rq1_target_utility/           RQ1 (paper §5.1)
