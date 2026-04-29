@@ -1,5 +1,5 @@
 {
-  "sweep_dir": "/nobackup3/divyam/preempt-followup/agent_eval/agent_eval/results/sweep_v2",
+  "sweep_dir": "<repo>/rq4_agent_eval/results/sweep_v2",
   "n_sessions_loaded": 28800,
   "n_cells": 216,
   "bootstrap_resamples": 1000,

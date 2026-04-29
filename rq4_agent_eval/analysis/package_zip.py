@@ -54,13 +54,18 @@ See `results/sweep_v2_analysis/summary.md` for: M-All mechanism difference vs RQ
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(DEFAULT_OUT))
-    ap.add_argument("--staging", default="/tmp/agent_eval_rq1_staging")
+    ap.add_argument("--staging", default=None,
+                    help="Staging dir; defaults to a fresh tempfile.mkdtemp().")
     args = ap.parse_args()
 
-    staging = Path(args.staging)
-    if staging.exists():
-        shutil.rmtree(staging)
-    staging.mkdir(parents=True)
+    if args.staging is None:
+        import tempfile
+        staging = Path(tempfile.mkdtemp(prefix='rootguard_pkg_'))
+    else:
+        staging = Path(args.staging)
+        if staging.exists():
+            shutil.rmtree(staging)
+        staging.mkdir(parents=True)
 
     # Copy what we want into the staging dir.
     print(f"staging at {staging}")
