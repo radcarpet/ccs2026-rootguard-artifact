@@ -47,20 +47,6 @@ python analysis/gen_per_template_summary.py
 python analysis/gen_template_metadata_table.py
 ```
 
-### Appendix-only scripts (not reproducible from this artifact alone)
-
-`gen_per_template_plot.py` and `gen_fair_utility.py` are appendix-only
-analyses that consume `results_rq2_implied/s_dom_info.json` — a
-domain-statistics file that the public artifact does not ship and no
-included script produces. Per AUDIT.md, the body of RQ3 reproduces
-without these. Both scripts now exit cleanly with an explanatory message
-when invoked in this artifact:
-
-```bash
-python analysis/gen_per_template_plot.py    # exits with "appendix-only, requires s_dom_info.json"
-python analysis/gen_fair_utility.py          # same exit
-```
-
 ## Pre-built outputs
 
 ```

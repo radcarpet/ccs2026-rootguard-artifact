@@ -1,8 +1,0 @@
-names==0.3.0
-names-dataset==3.3.1
-protobuf==6.30.2
-pyfpe==0.10.3
-sentencepiece==0.2.0
-torch==2.6.0
-tqdm==4.67.1
-transformers==4.51.3

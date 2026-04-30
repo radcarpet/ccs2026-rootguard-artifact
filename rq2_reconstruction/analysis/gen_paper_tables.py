@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Generate RQ2 LaTeX tables with the labels referenced in the paper.
 
-The artifact's existing ``gen_main_table.py`` and ``gen_appendix.py`` emit
-internal labels (``tab:rq3_v2_main_*``, ``tab:rq3_v2_agg_*``). The paper text
-references a different set of labels — this script writes additional .tex
-files using those paper-side labels. Existing outputs are left untouched
-for backward compatibility.
+This is the canonical RQ2 table generator. It emits every label the
+paper text cites (tab:recon_main, tab:rq2_per_template, the four
+tab:rq2_exp_{A,B}_{uniform,informed} appendix tables, plus
+tab:rq2_blap_agg and tab:rq2_stair_agg) into rq2_reconstruction/tables/.
 
 Outputs (under rq2_reconstruction/tables/):
 
