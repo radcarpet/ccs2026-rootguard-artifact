@@ -1,7 +1,10 @@
 # Install
 
-Tested with Python 3.11 on Linux. Other versions ≥ 3.10 should work
-(`pyproject.toml` declares `requires-python = ">=3.10"`).
+Tested with Python 3.11 / 3.12 on Linux. `pyproject.toml` declares
+`requires-python = ">=3.10,<3.13"`. Python 3.13 is **not** supported yet —
+`sentencepiece`, `torch`, and `pyfpe-ff3`'s upstream all gate on `<3.13`,
+and on a 3.13 interpreter `pip install -e .` will fail at the resolver
+step.
 
 ## Option A — pip (any virtualenv tool)
 

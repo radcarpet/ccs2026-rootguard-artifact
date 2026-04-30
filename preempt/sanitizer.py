@@ -8,7 +8,7 @@ from tqdm import tqdm
 import re
 import unicodedata
 import ast
-from pyfpe_ff3 import FF3Cipher
+from ff3 import FF3Cipher
 from names_dataset import NameDataset
 import names
 
