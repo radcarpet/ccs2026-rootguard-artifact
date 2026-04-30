@@ -9,6 +9,16 @@ description = "Sanitize prompts containing PII values, while mainting high utili
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    # Numerical / experiment runners (RQ1, RQ2, RQ3, and analysis for all RQs)
+    "numpy>=1.23",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "networkx>=3.0",
+    "diffprivlib>=0.6.4",
+    # RQ4 — LLM agent eval
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+    # Core preempt/ sanitizer (NER, FPE, name lists)
     "names>=0.3.0",
     "names-dataset>=3.3.1",
     "protobuf>=5.29.4",

@@ -1,6 +1,7 @@
 # Install
 
-Tested with Python 3.11 on Linux. Other versions ≥ 3.11 should work.
+Tested with Python 3.11 on Linux. Other versions ≥ 3.10 should work
+(`pyproject.toml` declares `requires-python = ">=3.10"`).
 
 ## Option A — pip (any virtualenv tool)
 
@@ -11,8 +12,20 @@ pip install --upgrade pip
 pip install -e .
 ```
 
-`pyproject.toml` pins the dependencies (numpy, scipy, matplotlib, openai,
-python-dotenv). Total install size is < 200 MB.
+`pyproject.toml` pins all runtime dependencies. They split into three
+groups:
+
+* **Numerical / analysis (RQ1–RQ3 + plotting)** — numpy, scipy, matplotlib,
+  networkx, diffprivlib.
+* **RQ4 — LLM agent eval** — openai, python-dotenv.
+* **`preempt/` sanitizer (NER, FF3 cipher, name lists)** — torch,
+  transformers, sentencepiece, names, names-dataset, pyfpe, tqdm,
+  protobuf.
+
+Total install size with the torch / transformers wheels is ~1.5 GB.
+RQ1–RQ3 do not actually load the NER models, but `pip install -e .`
+ships them as part of the unified dependency set so the same `.venv`
+covers RQ4 as well.
 
 ## Option B — uv (faster, recommended if you have it)
 
