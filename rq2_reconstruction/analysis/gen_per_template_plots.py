@@ -10,7 +10,7 @@ Generates:
   - 3 multi-epsilon per-mechanism grids: for each mechanism family, 8-panel
     figure showing per-template lines across epsilons at Strategy B + informed.
 
-Output: rq3_v3_deliverables/per_template/*.pdf/png
+Output: ../plots/per_template/*.pdf/png
 """
 import os
 import sys
@@ -25,7 +25,10 @@ from loader import (
     load_result, compute_wmape,
 )
 
-OUT_DIR = "rq3_v3_deliverables/per_template"
+OUT_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "plots", "per_template",
+)
 
 EPS_FIXED = 0.1
 PRIORS = ["uniform", "informed"]

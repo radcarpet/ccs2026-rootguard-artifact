@@ -26,9 +26,12 @@ groups:
   protobuf.
 
 Total install size with the torch / transformers wheels is ~1.5 GB.
-RQ1–RQ3 do not actually load the NER models, but `pip install -e .`
-ships them as part of the unified dependency set so the same `.venv`
-covers RQ4 as well.
+RQ1–RQ3 do not actually load the NER models, but `preempt/sanitizer.py`
+unconditionally imports `preempt/ner.py` at module-load time, which
+imports `torch` and `transformers`. So even reviewers who only intend
+to reproduce RQ1–RQ3 will see the heavy stack get installed; it is not
+an option to leave torch/transformers out of the venv. CPU-only torch
+wheels are sufficient — no GPU is required.
 
 ## Option B — uv (faster, recommended if you have it)
 

@@ -16,7 +16,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 import os
 
-from generate_rq2_allocation_plot import (
+# `gen_allocation_plot.py` is the canonical sibling module that exposes the
+# shared TEMPLATES / MECHANISMS / plotting helpers used here. The earlier
+# module name `generate_rq2_allocation_plot` was retired during cleanup.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gen_allocation_plot import (
     TEMPLATES,
     MECHANISMS,
     EPS_MIN,
@@ -26,7 +30,7 @@ from generate_rq2_allocation_plot import (
     plot_power_law,
     plot_power_law_single,
 )
-import generate_rq2_allocation_plot as base
+import gen_allocation_plot as base
 from preempt.sanitizer import set_template_domains
 
 

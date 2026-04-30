@@ -91,9 +91,17 @@ def make_table(results_dir):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n', 1)[0])
+    # The RQ1 sweep emits its results under rq1_target_utility/. Look there
+    # by default (sibling of this RQ3 folder); fall back to the repo root for
+    # users who symlink results outside the folder structure.
+    _default_rq1 = (REPO.parent / 'rq1_target_utility'
+                    / 'results_rq1_adversarial_2kplus1_wmape_root_based')
+    if not _default_rq1.exists():
+        _default_rq1 = REPO.parent / 'results_rq1_adversarial_2kplus1_wmape_root_based'
     ap.add_argument('--results-dir',
-                    default=str(REPO.parent / 'results_rq1_adversarial_2kplus1_wmape_root_based'),
-                    help='Path to the root-space (2k+1) RQ1 sweep results')
+                    default=str(_default_rq1),
+                    help='Path to the root-space (2k+1) RQ1 sweep results '
+                         '(default: ../rq1_target_utility/results_rq1_adversarial_2kplus1_wmape_root_based)')
     ap.add_argument('--out-dir', default=str(REPO / 'tables'),
                     help='Where to write the .tex (default: rq3_structural_analysis/tables)')
     args = ap.parse_args()

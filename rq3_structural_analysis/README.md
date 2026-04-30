@@ -21,28 +21,44 @@ computed for RQ1 and the per-cell wMAPE values from RQ1's results.
 
 ## Reproduce
 
-Make sure RQ1 has been run first (or its frozen tables / aggregates are
-available). Then from this folder:
+**Prerequisite:** the body figures and the `tab:per_template_summary` table
+read RQ1's root-space sweep results
+(`rq1_target_utility/results_rq1_adversarial_2kplus1_wmape_root_based/`),
+so RQ1 must have been run first (`python rq1_target_utility/run_root_space.py …`
+for all 27 cells; the root-space sweep does not need a `recompute_wmape.py`
+pass — it emits the `_wmape_*` form directly). The frozen tables shipped in
+`tables/` cover the RQ3 body without rerunning anything.
+
+Then from this folder:
 
 ```bash
-# Allocation power-law fit (across mechanisms, ε, B settings).
+# Body §5: allocation power-law fit.
 python analysis/gen_allocation_plot.py
 python analysis/gen_allocation_plot_2kplus1.py
 
-# Per-template wMAPE breakdown (compressing vs amplifying).
-python analysis/gen_per_template_plot.py
-
-# §5 RQ3 body table tab:per_template_summary — per-template wMAPE at the
-# focal cell (ε=0.1, B=(2k+1)ε, Exponential), grouped into compressing
-# vs amplifying. Reads root-space data from
-# results_rq1_adversarial_2kplus1_wmape_root_based/ at the repo root.
+# Body §5 RQ3 table: tab:per_template_summary — per-template wMAPE at the
+# focal cell (ε=0.1, B=(2k+1)ε, Exponential), grouped compressing /
+# amplifying. The default --results-dir resolves to
+# ../rq1_target_utility/results_rq1_adversarial_2kplus1_wmape_root_based
+# (override with --results-dir if your data lives elsewhere).
 python analysis/gen_per_template_summary.py
 
 # Template-properties metadata table (roots, targets, formulas, domains).
 python analysis/gen_template_metadata_table.py
+```
 
-# Fair-utility analysis (paper appendix).
-python analysis/gen_fair_utility.py
+### Appendix-only scripts (not reproducible from this artifact alone)
+
+`gen_per_template_plot.py` and `gen_fair_utility.py` are appendix-only
+analyses that consume `results_rq2_implied/s_dom_info.json` — a
+domain-statistics file that the public artifact does not ship and no
+included script produces. Per AUDIT.md, the body of RQ3 reproduces
+without these. Both scripts now exit cleanly with an explanatory message
+when invoked in this artifact:
+
+```bash
+python analysis/gen_per_template_plot.py    # exits with "appendix-only, requires s_dom_info.json"
+python analysis/gen_fair_utility.py          # same exit
 ```
 
 ## Pre-built outputs

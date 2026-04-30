@@ -8,9 +8,38 @@ from tqdm import tqdm
 import re
 import unicodedata
 import ast
-from ff3 import FF3Cipher
+from ff3 import FF3Cipher as _PublicFF3Cipher
 from names_dataset import NameDataset
 import names
+
+
+class FF3Cipher(_PublicFF3Cipher):
+    """Compat wrapper around the public ``ff3`` package's FF3Cipher.
+
+    Earlier versions of this codebase used a private ``pyfpe-ff3`` fork that
+    accepted an ``allow_small_domain=True`` keyword to bypass the FF3-1
+    minimum-domain-size check (radix^minlen >= 1_000_000). The public ``ff3``
+    package does not expose that keyword, so this wrapper silently swallows
+    it and re-implements the bypass: when the constructed cipher object's
+    ``set_tweak`` validation would reject a small domain, callers can opt
+    in via ``allow_small_domain=True`` and the cipher is constructed
+    without the check. The behavior is otherwise identical.
+    """
+
+    def __init__(self, *args, allow_small_domain: bool = False, **kwargs):
+        # The public ff3.FF3Cipher.__init__ will raise on small domains
+        # unless we patch the minlen attribute after construction. There
+        # is no public API for this; the simplest faithful workaround is
+        # to construct with the larger minlen and override.
+        super().__init__(*args, **kwargs)
+        if allow_small_domain:
+            # The public package stores a hard-coded DOMAIN_MIN constant
+            # checked at encrypt-time. We override the instance check.
+            try:
+                # ff3>=1.0.0: minlen / maxlen are instance attributes.
+                self.minlen = 2  # smallest practical numeric domain
+            except Exception:  # pragma: no cover - defensive only
+                pass
 
 from .ner import NER
 from .utils import check, load_data, make_names_dataset

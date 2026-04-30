@@ -23,7 +23,10 @@ from loader import (
     load_result, compute_wmape,
 )
 
-OUT_DIR = "rq3_v3_deliverables"
+OUT_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "plots", "main",
+)
 EPS = 0.1
 PRIORS_TO_PLOT = ["uniform", "informed"]
 METHODS_TO_PLOT = ["vanilla", "vanilla_roots", "popabs"]

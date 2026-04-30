@@ -28,7 +28,13 @@ Total: 8 templates × 9 methods × 10 ε × 3 budgets ≈ 2,160 cells with 200 s
 
 ## Reproduce
 
-From this folder:
+From this folder. **Note on directory naming:** the sweep scripts emit raw
+per-call MAE into `results_rq1_adversarial_<budget>/` (target-space) and
+`results_rq1_adversarial_<budget>_wmape_root_based/` (root-space). The
+target-space analysis scripts read from `*_wmape/` directories, so a
+`recompute_wmape.py` pass converts the raw target-space output into the
+wMAPE-summarised form. The root-space sweep already emits the `_wmape_*`
+form directly (no recompute needed there).
 
 ```bash
 # 1. Run all 27 (mechanism × variant × budget) cells of the target-space
@@ -40,7 +46,15 @@ for budget in kplus1 2kplus1 3kplus1; do
   wait
 done
 
-# 2. Same for the root-space M-All variant (alongside, not replacement).
+# 2. Convert target-space raw MAE into the wMAPE summaries the analysis
+#    scripts read. Writes results_rq1_adversarial_<budget>_wmape/.
+for budget in kplus1 2kplus1 3kplus1; do
+  python recompute_wmape.py --budget_mode $budget
+done
+
+# 3. Same for the root-space M-All variant (alongside, not replacement).
+#    run_root_space.py emits the _wmape_root_based/ form directly, no
+#    recompute pass needed.
 for budget in kplus1 2kplus1 3kplus1; do
   for method in exp_all exp_roots exp_opt blap_all blap_roots blap_opt stair_all stair_roots stair_opt; do
     python run_root_space.py --method $method --budget_mode $budget &
@@ -48,12 +62,13 @@ for budget in kplus1 2kplus1 3kplus1; do
   wait
 done
 
-# 3. Build the main-text "double asymmetry" table + appendix tables.
+# 4. Build the main-text "double asymmetry" table + appendix tables
+#    (target-space, legacy comparison set).
 python analysis/gen_double_asymmetry_table.py
 python analysis/gen_appendix_summary.py
 python analysis/gen_main_tables.py
 
-# 4. Build the root-space wMAPE + Risk Class Error tables (paper-canonical).
+# 5. Build the root-space wMAPE + Risk Class Error tables (paper-canonical).
 #    Produces tables/root_space/:
 #      rq1_double_asymmetry.tex          tab:double_asymmetry      (body §5)
 #      rq1_rce_per_template.tex          tab:rce_per_template_rq1  (body §5)
@@ -62,10 +77,10 @@ python analysis/gen_main_tables.py
 #      rq1_{k,2k,3k}plus1_per_tmpl_wmape.tex tab:rq1_*_per_tmpl_wmape (appendix)
 python analysis/gen_rce_tables.py
 
-# 5. Build figures (target-space).
+# 6. Build figures (target-space).
 python analysis/gen_plots.py
 
-# 6. Build figures (root-space variant).
+# 7. Build figures (root-space variant).
 python analysis/gen_plots_root_based.py
 ```
 

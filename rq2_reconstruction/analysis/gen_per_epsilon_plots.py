@@ -10,7 +10,7 @@ For each epsilon (5 values), generates:
 Also generates one grid figure per mechanism family showing all 5 epsilons
 on one canvas (2 rows = strategies, 5 cols = epsilons).
 
-Output: rq3_v3_deliverables/per_epsilon/*.pdf/png
+Output: ../plots/per_epsilon/*.pdf/png
 """
 import os
 import sys
@@ -26,7 +26,10 @@ from loader import (
     load_result, compute_wmape,
 )
 
-OUT_DIR = "rq3_v3_deliverables/per_epsilon"
+OUT_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "plots", "per_epsilon",
+)
 PRIORS = ["uniform", "informed"]
 
 MECH_FAMILIES = {

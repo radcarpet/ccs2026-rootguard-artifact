@@ -23,7 +23,14 @@ from loader import (
     load_result, load_allocation, compute_wmape, fmt,
 )
 
-OUT_PATH = "rq3_v3_deliverables/appendix.tex"
+# Write to the standard tables/ directory (sibling of analysis/) regardless
+# of the caller's CWD. The legacy path was rq3_v3_deliverables/appendix.tex,
+# left over from the project's pre-rename layout.
+OUT_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "tables",
+    "appendix.tex",
+)
 
 
 def aggregate(method, prior, strategy, eps, q):
@@ -201,6 +208,7 @@ def main():
     parts.append(strategy_a_metadata())
 
     tex = "\n\n".join(parts) + "\n"
+    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w") as f:
         f.write(tex)
     print(f"Wrote {OUT_PATH} ({len(tex)} chars)")

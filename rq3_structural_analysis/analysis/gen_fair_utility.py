@@ -160,7 +160,11 @@ def compute_risk_error(gt_vals, sanitized_list, tmpl):
 # ── Load data ────────────────────────────────────────────────────────────────
 
 def load_ground_truth():
-    with open("../../data/nhanes_benchmark_200.json") as f:
+    data_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "data", "nhanes_benchmark_200.json",
+    )
+    with open(data_path) as f:
         raw = json.load(f)
     gt = {}
     for tmpl in TEMPLATES:
@@ -266,7 +270,17 @@ def load_budget_info():
         n_nodes: {tmpl: n} — number of non-classification nodes
         s_dom_vals: {tmpl: S_dom} — domain-space max separation
     """
-    with open(os.path.join("results_rq2_implied", "s_dom_info.json")) as f:
+    s_dom_path = os.path.join("results_rq2_implied", "s_dom_info.json")
+    if not os.path.exists(s_dom_path):
+        sys.stderr.write(
+            "gen_fair_utility.py: this appendix-only analysis requires\n"
+            "  results_rq2_implied/s_dom_info.json,\n"
+            "which the public artifact does not ship (no producer script is\n"
+            "included). The body of RQ3 reproduces without it; see AUDIT.md\n"
+            "for the canonical scripts. Skipping.\n"
+        )
+        sys.exit(2)
+    with open(s_dom_path) as f:
         sdom = json.load(f)
     from preempt.sanitizer import set_template_domains, MEDICAL_DOMAINS
 

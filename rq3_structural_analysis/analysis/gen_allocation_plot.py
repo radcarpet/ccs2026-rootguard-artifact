@@ -133,7 +133,11 @@ def topo_sort(roots, derived):
 
 
 def load_holdout_means():
-    with open("../../data/holdout_population_means.json") as f:
+    data_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "data", "holdout_population_means.json",
+    )
+    with open(data_path) as f:
         return json.load(f)["per_template_means"]
 
 

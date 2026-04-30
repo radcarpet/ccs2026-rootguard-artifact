@@ -67,8 +67,13 @@ def render(prior):
 
 
 def main():
+    out_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "tables",
+    )
+    os.makedirs(out_dir, exist_ok=True)
     for prior in PRIORS:
-        out = f"rq3_v3_deliverables/main_table_{prior}.tex"
+        out = os.path.join(out_dir, f"main_table_{prior}.tex")
         tex = render(prior)
         with open(out, "w") as f:
             f.write(tex)
