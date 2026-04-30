@@ -60,9 +60,6 @@ numerical / mechanism simulations.
   regenerate them by running `experiments/run_sweep.py`. Frozen
   `aggregates.json`, `tables/`, `plots/`, and `SUMMARY.md` are shipped so
   outputs can be verified without an API key.
-- Pretrained model weights for some baselines (CAPE, SBYW-DPMLM, CluSanT
-  embeddings). Those are not used by RQ1–4 in the paper's main results,
-  only by older comparison runs that are not in this artifact's scope.
 
 ## Troubleshooting
 
