@@ -10,8 +10,8 @@ from collections import defaultdict
 import numpy as np
 
 REPO = Path(__file__).resolve().parent.parent
-DEFAULT_AGG = REPO / "results" / "sweep_v2_analysis" / "aggregates.json"
-DEFAULT_OUT = REPO / "results" / "sweep_v2_analysis" / "summary.md"
+DEFAULT_AGG = REPO / "aggregates.json"
+DEFAULT_OUT = REPO / "SUMMARY.md"
 
 CONFIGS = ("all", "roots", "opt")
 CONFIG_LABEL = {"all": "M-All", "roots": "M-Roots", "opt": "M-Opt"}

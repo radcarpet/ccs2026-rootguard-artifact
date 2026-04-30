@@ -66,7 +66,9 @@ done
 #    (target-space, legacy comparison set).
 python analysis/gen_double_asymmetry_table.py
 python analysis/gen_appendix_summary.py
-python analysis/gen_main_tables.py
+# (gen_main_tables.py is a legacy parametrized-turns generator; not part
+# of the paper-canonical pipeline — invoke with `--turns N` only if you
+# specifically want the per-T target-space breakdown.)
 
 # 5. Build the root-space wMAPE + Risk Class Error tables (paper-canonical).
 #    Produces tables/root_space/:

@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 REPO = Path(__file__).resolve().parent.parent
-DEFAULT_AGG = REPO / "results" / "sweep_v2_analysis" / "aggregates.json"
-DEFAULT_PLOTS = REPO / "results" / "sweep_v2_analysis" / "plots"
+DEFAULT_AGG = REPO / "aggregates.json"
+DEFAULT_PLOTS = REPO / "plots"
 
 CONFIGS = ("all", "roots", "opt")
 CONFIG_LABEL = {"all": "M-All", "roots": "M-Roots", "opt": "M-Opt"}
