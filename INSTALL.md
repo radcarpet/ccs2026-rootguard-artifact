@@ -46,13 +46,17 @@ From the artifact root:
 python -c "import numpy, scipy, matplotlib, openai; print('ok')"
 ```
 
-Each RQ folder also has a tiny smoke test:
+RQ4 ships a small unit-test suite (the other RQs are pure numerical
+scripts and rely on the import smoke check above):
 
 ```bash
-for d in rq1_target_utility rq2_reconstruction rq3_structural_analysis rq4_agent_eval; do
-  (cd "$d" && python tests/test_smoke.py)
+cd rq4_agent_eval
+for t in tests/test_smoke.py tests/test_proxy.py tests/test_attack.py tests/test_agent.py; do
+  python "$t"
 done
 ```
+
+Expected: each script ends with `All N tests passed`.
 
 ## Environment variables (RQ4 only)
 
